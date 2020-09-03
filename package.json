@@ -1,5 +1,5 @@
 {
-  "name": "drag-resize",
+  "name": "rc-drag-resize",
   "version": "0.0.1",
   "scripts": {
     "start": "dumi dev",
