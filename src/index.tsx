@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
+import clamp from 'lodash/clamp';
 import useIsMount from './useIsMount';
 import { inset0 } from './utils';
 
@@ -48,7 +49,14 @@ const getDirection = (direction: Directions[number]): DirectionMap => {
   return directionMap[direction as keyof typeof directionMap] as DirectionMap;
 };
 
-const DragResize: React.FC<DragResizeProps> = ({ children, directions: propsDirections = directions }) => {
+const DragResize: React.FC<DragResizeProps> = ({
+  children,
+  directions: propsDirections = directions,
+  maxWidth = Number.MAX_SAFE_INTEGER,
+  minWidth = 0,
+  maxHeight = Number.MAX_SAFE_INTEGER,
+  minHeight = 0,
+}) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -96,14 +104,17 @@ const DragResize: React.FC<DragResizeProps> = ({ children, directions: propsDire
     const moveY = pageY - startPos.current.y;
 
     if (contentRef.current && wrapperRef.current) {
+      const { width, height } = wrapperRef.current.getBoundingClientRect();
       const { x, y } = getDirection(currentDirection.current);
       if (x) {
         const [property, direction] = x;
-        contentRef.current.style[property] = `${moveX * direction}px`;
+        const clampX = clamp(moveX * direction, -maxWidth + width, minWidth + width);
+        contentRef.current.style[property] = `${clampX}px`;
       }
       if (y) {
         const [property, direction] = y;
-        contentRef.current.style[property] = `${moveY * direction}px`;
+        const clampY = clamp(moveY * direction, -maxHeight + height, minHeight + height);
+        contentRef.current.style[property] = `${clampY}px`;
       }
     }
   };
@@ -129,7 +140,7 @@ const DragResize: React.FC<DragResizeProps> = ({ children, directions: propsDire
       document.body.removeEventListener('mousemove', onMouseMove);
       document.body.removeEventListener('mouseup', onMouseUp);
     };
-  }, []);
+  }, [maxWidth, minWidth, maxHeight, minHeight]);
 
   return (
     <div ref={wrapperRef} className="drag-resize" style={baseChildrenSize}>
