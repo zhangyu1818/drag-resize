@@ -1,7 +1,5 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import clamp from 'lodash/clamp';
-import useIsMount from './useIsMount';
-import { inset0 } from './utils';
 
 import './index.less';
 
@@ -14,7 +12,8 @@ export interface DragResizeProps {
   minWidth?: number;
 }
 
-type Directions = typeof directions;
+export type Directions = typeof directions;
+
 type DirectionMapValue = ['top' | 'right' | 'bottom' | 'left', 1 | -1];
 type DirectionMap = {
   x?: DirectionMapValue;
@@ -31,6 +30,9 @@ const contentCSSProperties: React.CSSProperties = {
 };
 
 const directions = ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'] as const;
+
+const clampMove = (value: number, direction: -1 | 1, min: number, max: number, current: number) =>
+  direction == -1 ? clamp(value, min - current, max - current) : clamp(value, -max + current, -min + current);
 
 const getDirection = (direction: Directions[number]): DirectionMap => {
   const directionMap = {
@@ -49,6 +51,16 @@ const getDirection = (direction: Directions[number]): DirectionMap => {
   return directionMap[direction as keyof typeof directionMap] as DirectionMap;
 };
 
+const inset0 = (element: HTMLDivElement | null) => {
+  if (element) {
+    element.style.position = 'absolute';
+    element.style.top = '0px';
+    element.style.right = '0px';
+    element.style.bottom = '0px';
+    element.style.left = '0px';
+  }
+};
+
 const DragResize: React.FC<DragResizeProps> = ({
   children,
   directions: propsDirections = directions,
@@ -57,25 +69,24 @@ const DragResize: React.FC<DragResizeProps> = ({
   maxHeight = Number.MAX_SAFE_INTEGER,
   minHeight = 0,
 }) => {
+  const [baseChildrenSize, setBaseChildrenSize] = useState({ width: 0, height: 0 });
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
-
-  const isMount = useIsMount();
 
   const startPos = useRef({ x: 0, y: 0 });
 
   const currentDirection = useRef<Directions[number] | null>(null);
 
-  const baseChildrenSize = useMemo(() => {
-    if (!isMount || !contentRef.current) return { width: 0, height: 0 };
+  const getBaseChildrenSize = () => {
+    if (!contentRef.current) return { width: 0, height: 0 };
     contentRef.current.style.position = 'static';
     const { width, height } = contentRef.current.getBoundingClientRect();
     contentRef.current.style.position = 'absolute';
     return { width, height };
-  }, [isMount, children]);
+  };
 
   const getChildren = () => {
-    if (!isMount || !contentRef.current || (baseChildrenSize.width === 0 && baseChildrenSize.height === 0))
+    if (!contentRef.current || (baseChildrenSize.width === 0 && baseChildrenSize.height === 0))
       return children;
 
     if (React.isValidElement(children)) {
@@ -106,15 +117,17 @@ const DragResize: React.FC<DragResizeProps> = ({
     if (contentRef.current && wrapperRef.current) {
       const { width, height } = wrapperRef.current.getBoundingClientRect();
       const { x, y } = getDirection(currentDirection.current);
+
       if (x) {
         const [property, direction] = x;
-        const clampX = clamp(moveX * direction, -maxWidth + width, minWidth + width);
-        contentRef.current.style[property] = `${clampX}px`;
+        const clampX = clampMove(moveX, direction, minWidth, maxWidth, width);
+        contentRef.current.style[property] = `${clampX * direction}px`;
       }
+
       if (y) {
         const [property, direction] = y;
-        const clampY = clamp(moveY * direction, -maxHeight + height, minHeight + height);
-        contentRef.current.style[property] = `${clampY}px`;
+        const clampY = clampMove(moveY, direction, minHeight, maxHeight, height);
+        contentRef.current.style[property] = `${clampY * direction}px`;
       }
     }
   };
@@ -130,6 +143,11 @@ const DragResize: React.FC<DragResizeProps> = ({
     document.body.style.userSelect = '';
     inset0(contentRef.current);
   };
+
+  useEffect(() => {
+    const size = getBaseChildrenSize();
+    setBaseChildrenSize(size);
+  }, [children]);
 
   useEffect(() => {
     document.body.addEventListener('mousedown', onMouseDown);

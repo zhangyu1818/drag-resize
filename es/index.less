@@ -1,0 +1,64 @@
+@handle-size: 4px;
+
+.drag-resize {
+  position: relative;
+  [class^='drag-resize-handle-'] {
+    position: absolute;
+  }
+  &-handle-n {
+    top: -@handle-size;
+    right: @handle-size;
+    left: @handle-size;
+    height: @handle-size;
+    cursor: n-resize;
+  }
+  &-handle-e {
+    top: @handle-size;
+    right: -@handle-size;
+    bottom: @handle-size;
+    width: @handle-size;
+    cursor: e-resize;
+  }
+  &-handle-s {
+    right: @handle-size;
+    bottom: -@handle-size;
+    left: @handle-size;
+    height: @handle-size;
+    cursor: s-resize;
+  }
+  &-handle-w {
+    top: @handle-size;
+    bottom: @handle-size;
+    left: -@handle-size;
+    width: @handle-size;
+    cursor: w-resize;
+  }
+
+  &-handle-ne,
+  &-handle-se,
+  &-handle-sw,
+  &-handle-nw {
+    width: @handle-size*2;
+    height: @handle-size*2;
+  }
+  &-handle-ne {
+    top: -@handle-size;
+    right: -@handle-size;
+    cursor: ne-resize;
+  }
+  &-handle-se {
+    right: -@handle-size;
+    bottom: -@handle-size;
+    cursor: se-resize;
+  }
+  &-handle-sw {
+    bottom: -@handle-size;
+    left: -@handle-size;
+    cursor: sw-resize;
+  }
+  &-handle-nw {
+    top: -@handle-size;
+    left: -@handle-size;
+    cursor: nw-resize;
+  }
+}
