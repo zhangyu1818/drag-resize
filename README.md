@@ -8,7 +8,7 @@
 import React from 'react';
 import DragResize from 'rc-drag-resize';
 
-import 'rc-drag-resize/index.css';
+import 'rc-drag-resize/es/index.css';
 
 export default () => (
   <DragResize>
