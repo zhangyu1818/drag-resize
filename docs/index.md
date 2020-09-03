@@ -9,7 +9,7 @@ title: 使用方式
 ## 使用
 
 ```sh
- yarn add drag-resize
+ yarn add rc-drag-resize
 ```
 
 ## 示例
