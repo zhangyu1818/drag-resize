@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import clamp from 'lodash/clamp';
 
-import './index.less';
-
 export interface DragResizeProps {
   children: React.ReactElement;
   directions?: Directions;

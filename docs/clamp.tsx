@@ -1,5 +1,5 @@
 import React from 'react';
-import DragResize from 'drag-resize';
+import DragResize from 'rc-drag-resize';
 
 export default () => (
   <div style={{ padding: 200, display: 'flex', justifyContent: 'center' }}>
