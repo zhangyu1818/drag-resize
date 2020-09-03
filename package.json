@@ -2,9 +2,7 @@
   "name": "rc-drag-resize",
   "version": "0.0.2-alpha.0",
   "license": "MIT",
-  "sideEffects": [
-    "*.less"
-  ],
+  "sideEffects": false,
   "scripts": {
     "start": "dumi dev",
     "docs:build": "dumi build",
